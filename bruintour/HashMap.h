@@ -6,97 +6,63 @@ template <typename T>
 class HashMap
 {
 public:
-	HashMap(double max_load = 0.75) : m_size(0), m_buckets(10), m_maxload(max_load)
+	HashMap(double max_load = 0.75) : m_hash(new std::vector<Node*>), m_buckets(10), m_maxload(max_load)
 	{
-		m_hash = new std::vector<Node*> v(m_buckets, nullptr);
-	} // constructor
+		for (int i = 0; i < m_buckets; i++)
+			m_hash->push_back(nullptr);
+	} // constructor; initializes a new empty hash table with 10 buckets
 
 	~HashMap()
 	{
-		// delete everything in m_hash
+		for (int i = 0; i < size(); i++)
+			delete m_nodes[i];
+		delete m_hash;
 	} // destructor; deletes all of the items in the hashmap
 
 	int size() const { return m_nodes.size(); } // return the number of associations in the hashmap
 
-	// The insert method associates one item (key) with another (value).
-	// If no association currently exists with that key, this method inserts
-	// a new association into the hashmap with that key/value pair. If there is
-	// already an association with that key in the hashmap, then the item
-	// associated with that key is replaced by the second parameter (value).
-	// Thus, the hashmap must contain no duplicate keys.
 	void insert(const std::string& key, const T& value)
 	{
-		int i = getIndex(key);
-		if (find(key) != nullptr)
+		if (find(key) != nullptr) // if key exists, updates the value of key
 		{
 			*find(key) = value;
 			return;
 		}
-		if ((size() + 1) * 1.0 / m_buckets > m_maxload)
+		if ((size() + 1) * 1.0 / m_buckets > m_maxload) // rehash into bigger table if max load is exceeded
 			rehash();
-		if ((*m_hash)[i] != nullptr)
-		{
-			Node* temp = (*m_hash)[i];
-			while (temp->next != nullptr)
-				temp = temp->next;
-			temp->next = new Node(key, value);
-			m_nodes.push_back(temp->next);
-		}
-		else
-		{
-			(*m_hash)[i] = new Node(key, value);
-			m_nodes.push_back(temp->next);
-		}
+		int i = getIndex(key); // ensures that index is always for the new, rehashed table 
+		Node* temp = m_hash->at(i);
+		m_hash->at(i) = new Node(key, value);
+		m_hash->at(i)->next = temp;
+		m_nodes.push_back(m_hash->at(i));
 	}
 
-	// If no association exists with the given key, return nullptr; otherwise,
-	// return a pointer to the value associated with that key. This pointer can be
-	// used to examine that value or modify it directly within the map.
 	T* find(const std::string& key) const
 	{
 		int i = getIndex(key);
-		if ((*m_hash)[i] != nullptr)
+		if (m_hash->at(i) != nullptr) // searches bucket for Node with matching key
 		{
-			Node* temp = (*m_hash)[i];
+			Node* temp = m_hash->at(i);
 			while (temp != nullptr)
 			{
 				if (temp->m_key == key)
-					return &temp->m_value;
+					return &(temp->m_value);
 				temp = temp->next;
 			}
 		}
-		return nullptr;
+		return nullptr; // returns nullptr if no matching key is found
 	}
 
-	// Defines the bracket operator for HashMap, so you can use your map like this:
-	// your_map["david"] = 2.99;
-	// If the key does not exist in the hashmap, this will create a new entry in
-	// the hashmap and map it to the default value of type T. Then it will return a
-	// reference to the newly created value in the map.
-	T& operator[](const std::string& key);
+	T& operator[](const std::string& key)
+	{
+		if (find(key) == nullptr) // if key does not currently exist in table, create new default entry
+			insert(key, T());
+		return *find(key);
+	}
 
 private:
-	Node* m_hash;
-	vector<Node*> m_nodes; // points to head nodes inside the hash map
-	int m_buckets;
-	double m_maxload;
-
-	int getIndex(std::string key)
-	{
-		size_t h = std::hash<std::string>()(key);
-		int index = h % m_buckets;
-	}
-
-	void rehash()
-	{
-		m_buckets *= 2;
-		Node* temp = new std::vector<Node*> v(m_buckets*2, nullptr);
-		for (int i = 0; i < size(); i++)
-		{
-			getIndex(m_nodes[i]->m_key)
-			
-		}
-	}
+	HashMap(const HashMap&);
+	HashMap& operator=(const HashMap&);
 
 	struct Node
 	{
@@ -105,6 +71,29 @@ private:
 		T m_value;
 		Node* next;
 	};
+
+	std::vector<Node*> *m_hash; // pointer to current hash table
+	std::vector<Node*> m_nodes; // always contains all Nodes
+	int m_buckets;
+	double m_maxload;
+
+	int getIndex(std::string key) const // function to turn string into an index via built-in string hasher
+	{
+		size_t h = std::hash<std::string>()(key);
+		return h % m_buckets;
+	}
+
+	void rehash() // creates a new vector 2x the size of current and rehashes all Nodes into it
+	{
+		m_buckets *= 2;
+		std::vector<Node*> *temp = new std::vector<Node*>;
+		for (int i = 0; i < m_buckets; i++) // fill vector with nullptrs(as default empty buckets)
+			temp->push_back(nullptr);
+		for (int i = 0; i < size(); i++) // fill hash table with rehashed Nodes
+			temp->at(getIndex(m_nodes[i]->m_key)) = m_nodes[i];
+		delete m_hash;
+		m_hash = temp; // replace current hash table
+	}
 };
 
 #endif
