@@ -48,6 +48,14 @@ int main() {
     cout << g.get_street_name(p5, p6) << endl; // writes "Kinross Avenue"
     cout << g.get_street_name(p6, p5) << endl; // writes "Kinross Avenue"
 
+    Router testRouter(g);
+    GeoPoint startpt("34.0570956", "-118.4798027");
+    //GeoPoint endpt("34.0570956", "-118.4798027");
+    GeoPoint endpt("34.0555267", "-118.4796954");
+    vector<GeoPoint> path = testRouter.route(startpt, endpt);
+    for (int i = 0; i < path.size(); i++)
+        cout << path[i].to_string() << endl;
+
     // Test Case 1: Constructor and Initial Size
     HashMap<int> map;
     assert(map.size() == 0);
