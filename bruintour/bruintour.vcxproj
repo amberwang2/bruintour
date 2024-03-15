@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="mapdata.txt" />
+    <Text Include="stops.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

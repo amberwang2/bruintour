@@ -9,8 +9,7 @@ class Router : public RouterBase
 public:
 	Router(const GeoDatabaseBase& geo_db) : geodb(geo_db) {};
 	virtual ~Router() {}
-	virtual std::vector<GeoPoint> route(const GeoPoint& pt1,
-		const GeoPoint& pt2) const;
+	virtual std::vector<GeoPoint> route(const GeoPoint& pt1, const GeoPoint& pt2) const;
 
 private:
 	struct Node

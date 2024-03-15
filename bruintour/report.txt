@@ -1,0 +1,11 @@
+Big-O of GeoDatabase::load()
+If the GeoDatabase holds S street segments and P Points of Interest, and N = S + P, the Big-O of load() is O(N).
+
+Big-O of GeoDatabase::get_connected_points()
+Assuming the HashMap has an approximately even distribution of associations into buckets, the Big-O of get_connected_points() is O(1) on average.
+
+Big-O of GeoDatabase::get_street_name()
+Assuming the HashMap has an approximately even distribution of associations into buckets, the Big-O of get_street_name() is O(1) on average.
+
+Big-O of Router::route()
+I implemented the A* algorithm for my route() function. For the open list, I used an STL ordered set, and for the closed list, I used an STL unordered set. Additionally, I used my HashMap class to keep track of GeoPoint connections, and I had an STL vector contain the connected GeoPoints of each GeoPoint. For the closed list, I used the insert() and find() methods, which are both O(1) for unordered sets. For the open list, I used the insert(), find(), and erase() methods, which are on average O(log(N)). My HashMap is on average O(1) for all operations, assuming associations are generally distributed evenly.
